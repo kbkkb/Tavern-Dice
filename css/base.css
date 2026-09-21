@@ -1,0 +1,202 @@
+/* ===== 酒馆骰局 · 基础样式 ===== */
+:root{
+  --bg:#14100c;
+  --bg-deep:#0c0906;
+  --ink:#e8dcc4;
+  --ink-dim:#a89878;
+  --gold:#c9a227;
+  --gold-bright:#e8c558;
+  --gold-dim:#8a7223;
+  --red:#b03a2e;
+  --red-bright:#e05a4a;
+  --parchment:#e8dcc4;
+  --parchment-ink:#3a2c1a;
+  --wood:#2a1f14;
+  --wood-light:#3d2c1c;
+  --line:rgba(201,162,39,.25);
+  /* 皮肤变量（默认值，由皮肤系统覆盖） */
+  --felt:radial-gradient(ellipse at 50% 30%, #3a2c1c 0%, #241a10 55%, #171008 100%);
+  --glow:rgba(255,170,60,.10);
+  --die-bg:#efe6d0;
+  --die-pip:#2a1f14;
+  --board-bg:linear-gradient(160deg,#e8dcc4,#d8c8a8);
+  --board-ink:#3a2c1a;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  background:var(--bg-deep);
+  color:var(--ink);
+  font-family:'Noto Sans SC',system-ui,sans-serif;
+  overflow:hidden;
+  user-select:none;
+}
+#candle-glow{
+  position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 15% 0%, var(--glow), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 85% 0%, var(--glow), transparent 70%),
+    radial-gradient(ellipse 80% 50% at 50% 110%, rgba(255,140,40,.06), transparent 70%);
+  animation:flicker 4s ease-in-out infinite alternate;
+}
+@keyframes flicker{0%{opacity:.75}45%{opacity:1}70%{opacity:.85}100%{opacity:.95}}
+/* 16:9 舞台：全屏居中框出，任何窗口尺寸下比例一致 */
+#app{
+  position:fixed;inset:0;margin:auto;z-index:1;
+  width:min(100vw, calc(100vh * 16 / 9));
+  height:min(100vh, calc(100vw * 9 / 16));
+  display:flex;flex-direction:column;overflow:hidden;
+  background:var(--bg);
+  border:1px solid rgba(201,162,39,.35);
+  box-shadow:0 0 90px rgba(0,0,0,.9),0 0 28px rgba(201,162,39,.07);
+}
+#app.scrollable{overflow-y:auto}
+
+h1,h2,h3,.serif{font-family:'Cinzel','Noto Serif SC',serif}
+.lucide{width:1.15em;height:1.15em;vertical-align:-.2em}
+
+/* ===== 通用组件 ===== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.5em;
+  padding:.8em 1.6em;border:none;border-radius:10px;cursor:pointer;
+  font-family:'Noto Serif SC',serif;font-weight:600;font-size:1rem;letter-spacing:.12em;
+  transition:transform .25s var(--ease),box-shadow .25s var(--ease),filter .2s;
+}
+.btn:active{transform:scale(.96)}
+.btn-gold{
+  background:linear-gradient(160deg,var(--gold-bright),var(--gold) 55%,var(--gold-dim));
+  color:#241a08;box-shadow:0 2px 12px rgba(201,162,39,.35),inset 0 1px 0 rgba(255,255,255,.35);
+}
+.btn-gold:hover{filter:brightness(1.08)}
+.btn-ghost{
+  background:transparent;color:var(--gold);border:1px solid var(--line);
+}
+.btn-ghost:hover{border-color:var(--gold)}
+.btn-danger{background:linear-gradient(160deg,var(--red-bright),var(--red));color:#fff}
+.btn[disabled]{opacity:.35;pointer-events:none}
+.btn-big{width:100%;padding:1em;font-size:1.1rem}
+
+.panel{
+  background:var(--board-bg);color:var(--board-ink);
+  border-radius:12px;padding:14px 16px;
+  box-shadow:0 4px 18px rgba(0,0,0,.5),inset 0 0 0 1px rgba(58,44,26,.15);
+}
+.panel-dark{
+  background:linear-gradient(160deg,var(--wood-light),var(--wood));
+  border:1px solid var(--line);border-radius:12px;padding:14px 16px;
+  box-shadow:0 4px 18px rgba(0,0,0,.4);
+}
+.chip{
+  display:inline-flex;align-items:center;gap:.3em;
+  padding:.2em .7em;border-radius:99px;font-size:.78rem;
+  border:1px solid var(--line);color:var(--gold);
+}
+.chip.sel{background:var(--gold);color:#241a08;border-color:var(--gold)}
+
+/* 货币栏 */
+.currency-bar{display:flex;gap:10px;align-items:center}
+.currency{display:inline-flex;align-items:center;gap:.35em;padding:.3em .8em;border-radius:99px;background:rgba(0,0,0,.45);border:1px solid var(--line);font-size:.85rem;font-weight:700}
+.currency .lucide{color:var(--gold)}
+.currency.gem .lucide{color:#7ec8e3}
+
+/* 页面标题 */
+.page-head{display:flex;align-items:center;gap:12px;padding:10px 16px 4px}
+.page-head h2{font-size:1.1rem;color:var(--gold-bright);letter-spacing:.15em}
+.page-head .back{background:none;border:1px solid var(--line);color:var(--ink);border-radius:8px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* 弹层 */
+#modal-root:empty{display:none}
+.modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:50;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .25s var(--ease)}
+.modal-box{max-width:380px;width:100%;max-height:82vh; transform-origin:50% 60%;animation:popIn .35s var(--ease);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.modal-scroll{overflow-y:auto}
+@keyframes popIn{from{transform:scale(.85) translateY(20px);opacity:0}to{transform:none;opacity:1}}
+@keyframes fadeIn{from{opacity:0}}
+
+/* Toast */
+#toast-root{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:99;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:linear-gradient(160deg,var(--wood-light),var(--wood));border:1px solid var(--gold);color:var(--gold-bright);padding:.6em 1.2em;border-radius:99px;font-size:.88rem;box-shadow:0 4px 20px rgba(0,0,0,.6);animation:toastIn .4s var(--ease)}
+.toast.out{animation:toastOut .4s var(--ease) forwards}
+@keyframes toastIn{from{transform:translateY(-24px);opacity:0}}
+@keyframes toastOut{to{transform:translateY(-24px);opacity:0}}
+
+/* ===== 骰子 ===== */
+/* 对局：顶部左右上角=双方总分，中间=目标分+暂存分+行动方+规则按钮，下方全宽骰盘 */
+.match{
+  flex:1;min-height:0;
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  grid-template-rows:auto minmax(0,1fr) auto;
+  grid-template-areas:
+    "p0  hud  p1"
+    "tabl tabl tabl"
+    "botm botm botm";
+  gap:8px;padding:10px 14px 12px;
+}
+.match .player-bar{grid-area:p0;align-self:start;justify-self:start}
+.match .player-bar[data-p="1"]{grid-area:p1;justify-self:end}
+.match .player-bar{
+  flex-direction:row;gap:10px;
+  padding:8px 14px;border-radius:99px;border:1px solid var(--line);
+  background:rgba(0,0,0,.4);transition:box-shadow .3s,border-color .3s;
+}
+.match .player-bar.active{border-color:var(--gold);box-shadow:0 0 16px rgba(201,162,39,.25)}
+.match .player-bar .avatar{width:34px;height:34px}
+.match .player-bar .name{font-size:.85rem}
+.match .player-bar .pers{font-size:.66rem}
+.match .player-bar .score{font-size:1.5rem;margin-left:6px}
+.match .hud{grid-area:hud;align-self:center;display:flex;gap:8px;align-items:center}
+.match .hud .panel{flex-direction:row;align-items:baseline;gap:10px;padding:8px 16px}
+.match .hud .big{font-size:1.4rem}
+.match .hud-rules{padding:.5em .9em;font-size:.82rem}
+.match .table-zone{grid-area:tabl;margin:0}
+.match .bottom-row{grid-area:botm;display:flex;gap:10px;align-items:stretch}
+.match .bottom-row .badge-bar{flex:0 0 300px;padding:0}
+.match .bottom-row .action-bar{flex:1;padding:0}
+.match .bottom-row .badge-slot{height:100%;align-items:center}
+/* 窄屏/手机竖持降级：回退纵向堆叠 */
+@media (max-width:680px){
+  #app{position:relative;inset:auto;width:100vw;height:100dvh;border:none;box-shadow:none}
+  .match{display:flex;flex-direction:column;min-height:100dvh;padding:0;gap:0}
+  .match .player-bar{border-radius:0;border:none;border-bottom:1px solid var(--line);padding:10px 16px}
+  .match .player-bar[data-p="1"]{order:0;justify-self:auto}
+  .match .hud{order:1;margin:8px 16px 0;flex-wrap:wrap}
+  .match .hud .panel{flex-direction:column;align-items:center;gap:2px;flex:1}
+  .match .table-zone{order:2;margin:10px 16px;flex:1}
+  .match .bottom-row{order:3;flex-direction:column;padding:0 16px 18px}
+  .match .bottom-row .badge-bar{flex:none}
+  .match .player-bar[data-p="0"]{order:4}
+  .match .player-bar .score{font-size:1.3rem;margin-left:0}
+}
+.die{
+  width:52px;height:52px;border-radius:12px;position:relative;flex:none;
+  background:var(--die-bg);
+  box-shadow:0 3px 8px rgba(0,0,0,.5),inset 0 -3px 6px rgba(0,0,0,.15),inset 0 2px 3px rgba(255,255,255,.5);
+  display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:9px;
+  transition:transform .3s var(--ease),box-shadow .3s,filter .3s;
+}
+.die .pip{width:78%;height:78%;border-radius:50%;background:var(--die-pip);place-self:center;box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
+.die.sm{width:34px;height:34px;border-radius:8px;padding:6px}
+.die.lg{width:64px;height:64px}
+.die.selectable{cursor:pointer}
+.die.selectable:hover{transform:translateY(-4px)}
+.die.selected{transform:translateY(-8px) scale(1.06);box-shadow:0 0 0 2px var(--gold),0 8px 16px rgba(201,162,39,.4)}
+.die.kept{filter:brightness(.72) sepia(.3);box-shadow:0 0 0 2px var(--gold-dim)}
+.die.rolling{animation:diceRoll .5s var(--ease)}
+@keyframes diceRoll{0%{transform:rotate(0) scale(1)}30%{transform:rotate(140deg) scale(1.15)}60%{transform:rotate(260deg) scale(.95)}100%{transform:rotate(360deg) scale(1)}}
+.die.hint{box-shadow:0 0 0 2px var(--gold-bright),0 0 14px rgba(232,197,88,.6);animation:hintPulse 1.2s ease-in-out infinite}
+@keyframes hintPulse{50%{box-shadow:0 0 0 2px var(--gold-bright),0 0 4px rgba(232,197,88,.2)}}
+
+/* 徽章充能点 */
+.charge-dots{display:inline-flex;gap:4px}
+.charge-dots i{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 4px rgba(201,162,39,.6)}
+.charge-dots i.off{background:#4a3d2c;box-shadow:none}
+
+/* 通用动画 */
+.anim-up{animation:fadeUp .5s var(--ease) both}
+@keyframes fadeUp{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
+.glow-text{text-shadow:0 0 18px rgba(232,197,88,.5)}
+
+/* 滚动条 */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:4px}

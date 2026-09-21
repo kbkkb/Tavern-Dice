@@ -1,0 +1,22 @@
+# ===== 系统垃圾文件 =====
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# ===== 编辑器 / IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== 本项目为纯静态 demo，无构建产物 =====
+# 若将来引入 npm 工具链再取消注释：
+# node_modules/
+# dist/
+
+# ===== 日志 / 临时文件 =====
+*.log
+tmp/
+*.tmp
+/docs
