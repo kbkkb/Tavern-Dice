@@ -33,16 +33,7 @@ const Engine = (() => {
     if ([2, 3, 4, 5, 6].every(v => counts[v] >= 1)) list.push({ use: [0, 0, 1, 1, 1, 1, 1], score: 750, name: '顺子 2-6' });
     const pairs = [];
     for (let v = 1; v <= 6; v++) if (counts[v] >= 2) pairs.push(v);
-    if (pairs.length >= 3) {
-      const u = [0, 0, 0, 0, 0, 0, 0];
-      pairs.slice(0, 3).forEach(v => u[v] = 2);
-      list.push({ use: u, score: 600, name: '三对' });
-    }
-    for (let a = 1; a <= 6; a++) if (counts[a] >= 3)
-      for (let b = 1; b <= 6; b++) if (b !== a && counts[b] >= 2) {
-        const u = [0, 0, 0, 0, 0, 0, 0]; u[a] = 3; u[b] = 2;
-        list.push({ use: u, score: TRIPLE(a) + b * 50, name: `葫芦 ${a}·${b}` });
-      }
+    /* 简化计分表：三对、葫芦已移除，只保留多同/顺子/单龬1/5 */
     return list;
   }
 

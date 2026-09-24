@@ -119,6 +119,7 @@ const UI = (() => {
       <div class="panel">
         <h3><i data-lucide="scroll-text"></i>计分表</h3>
         <table class="score-table">${rows}</table>
+        <p style="font-size:.72rem;margin-top:8px;opacity:.75">简化计分：只有多同（三同及以上）、顺子和单龬 1 / 5 计分，两颗同数不成组合。</p>
       </div>
       <div class="panel">
         <h3><i data-lucide="repeat"></i>回合流程</h3>
@@ -751,7 +752,7 @@ const UI = (() => {
       <h3 style="color:var(--gold-bright);letter-spacing:.15em;margin-bottom:10px"><i data-lucide="book-open"></i> 计分规则</h3>
       <table class="score-table">${rows}</table>
       <p style="font-size:.72rem;margin-top:12px;line-height:1.7;opacity:.8">
-        每次掷骰后必须至少扣下一颗计分骰子；六颗全部扣下触发 Hot Dice（保留暂存分、重掷六颗）；无组合可扣即爆掉清零。
+        每次掷骰后必须至少扣下一颗计分骰子；六颗全部扣下触发 Hot Dice（保留暂存分、重掷六颗）；无组合可扣即爆掉清零。简化计分：只有多同（三同及以上）、顺子和单龬 1 / 5 计分。
       </p>
       <button class="btn btn-gold btn-big" style="margin-top:10px" onclick="UI.closeModal()">返回对局</button>
     </div>`, true);
