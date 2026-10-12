@@ -52,12 +52,27 @@
 .sel-info .none{color:var(--ink-dim);font-size:.75rem}
 
 .badge-bar{display:flex;align-items:center;gap:10px;padding:8px 16px}
-.badge-slot{flex:1;display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:rgba(0,0,0,.3)}
-.badge-slot.usable{border-color:var(--gold);box-shadow:0 0 12px rgba(201,162,39,.2);cursor:pointer;animation:hintPulse2 1.6s ease-in-out infinite}
-@keyframes hintPulse2{50%{box-shadow:0 0 4px rgba(201,162,39,.1)}}
-.badge-slot .bi{width:34px;height:34px;border-radius:8px;background:rgba(201,162,39,.12);display:flex;align-items:center;justify-content:center;color:var(--gold)}
-.badge-slot .bname{font-size:.8rem;font-weight:700}
-.badge-slot .bdesc{font-size:.68rem;color:var(--ink-dim)}
+.badge-slot{
+  flex:1;display:flex;align-items:center;gap:12px;padding:12px 16px;min-height:84px;
+  border-radius:18px;border:1px solid var(--line);appearance:none;-webkit-appearance:none;
+  background:linear-gradient(160deg,var(--wood-light),var(--wood));
+  color:var(--ink);font-family:inherit;text-align:left;
+  box-shadow:0 4px 14px rgba(0,0,0,.5);
+  transition:transform .25s var(--ease),box-shadow .25s,border-color .25s,filter .2s;
+}
+.badge-slot.usable{border-color:var(--gold);color:var(--gold-bright);box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 12px rgba(201,162,39,.2);cursor:pointer;animation:hintPulse2 1.6s ease-in-out infinite}
+.badge-slot.usable:hover{filter:brightness(1.12);transform:translateY(-2px)}
+.badge-slot.usable:active{transform:scale(.97)}
+.badge-slot:not(:disabled){cursor:pointer}
+.badge-slot:not(:disabled):hover{filter:brightness(1.12)}
+.badge-slot:not(:disabled):active{transform:scale(.97)}
+.badge-slot:disabled{cursor:default;opacity:.7}
+@keyframes hintPulse2{50%{box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 4px rgba(201,162,39,.1)}}
+.badge-slot .bi{width:40px;height:40px;border-radius:10px;background:rgba(201,162,39,.12);display:flex;align-items:center;justify-content:center;color:var(--gold);flex:none}
+.badge-slot .bi .lucide{width:22px;height:22px}
+.badge-slot .binfo{flex:1;min-width:0}
+.badge-slot .bname{display:block;font-size:.85rem;font-weight:700}
+.badge-slot .bdesc{display:block;font-size:.72rem;color:var(--ink-dim);margin-top:2px}
 
 .action-bar{display:flex;gap:10px;padding:8px 16px 18px}
 .action-bar .btn{flex:1}
@@ -153,6 +168,12 @@
 .goods-card .owned-tag{font-size:.68rem;color:#7a9a3a}
 .goods-card button{margin-top:0;padding:.5em 1.2em;font-size:.8rem}
 .goods-card .die.lg{width:44px;height:44px}
+/* 内购档位图标 */
+.iap-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line)}
+.iap-icon.gem{background:rgba(126,200,227,.14);color:#7ec8e3}
+.iap-icon.coin{background:rgba(201,162,39,.14);color:var(--gold)}
+.iap-icon .lucide{width:26px;height:26px}
+.goods-card .gdesc:empty{display:none}
 .swatch-row{display:flex;gap:6px}
 .swatch{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer}
 .swatch.cur{border-color:var(--gold-bright)}

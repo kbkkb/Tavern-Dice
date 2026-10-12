@@ -108,20 +108,21 @@ const Main = (() => {
     Save.write(); applySkins();
     UI.go('shop');
   }
-  function recharge() {
-    UI.modal(`<div style="padding:20px;text-align:center">
-      <h3 style="color:var(--gold-bright);margin-bottom:8px"><i data-lucide="gem"></i> 充值点券（演示）</h3>
-      <p style="font-size:.82rem;margin-bottom:16px;opacity:.8">demo 假充值流程：点击确认即模拟支付成功，获得 ${DATA.ECON.rechargeGems} 点券。</p>
-      <div style="display:flex;gap:10px">
-        <button class="btn btn-ghost" style="flex:1" onclick="UI.closeModal()">取消</button>
-        <button class="btn btn-gold" style="flex:1" onclick="Main.rechargeOk()">确认支付</button>
-      </div></div>`, true);
-  }
-  function rechargeOk() {
-    Save.data.gems += DATA.ECON.rechargeGems;
+  /* ---- 内购：钻石 / 金币档位 ---- */
+  function buyGems(packId) {
+    const p = DATA.GEM_PACKS.find(x => x.id === packId);
+    if (!p) return;
+    Save.data.gems += p.gems;
     Save.write();
-    UI.closeModal();
-    UI.toast(`充值成功（模拟）：+${DATA.ECON.rechargeGems} 点券`);
+    UI.toast(`购买成功 · 获得 ${p.gems.toLocaleString()} 点券`);
+    UI.go('shop');
+  }
+  function buyCoins(packId) {
+    const p = DATA.COIN_PACKS.find(x => x.id === packId);
+    if (!p) return;
+    Save.data.coins += p.coins;
+    Save.write();
+    UI.toast(`购买成功 · 获得 ${p.coins.toLocaleString()} 软币`);
     UI.go('shop');
   }
   function skinPreview(id) {
@@ -437,7 +438,7 @@ const Main = (() => {
 
   return {
     applySkins, stat, achProgress, claimAch,
-    buyDice, buyBadge, buySkin, equipSkin, recharge, rechargeOk, skinPreview,
+    buyDice, buyBadge, buySkin, equipSkin, buyGems, buyCoins, skinPreview,
     startRandom, randTarget, startRankedBattle, startBossChallenge, startLocal,
     prepPickDice, pickDice, prepPickBadge, pickBadge, prepStart, retry, bustConfirm, seriesNext,
     get _series() { return _seriesRef.v; },

@@ -146,14 +146,39 @@ h1,h2,h3,.serif{font-family:'Cinzel','Noto Serif SC',serif}
 .match .player-bar .pers{font-size:.66rem}
 .match .player-bar .score{font-size:1.5rem;margin-left:6px}
 .match .hud{grid-area:hud;align-self:center;display:flex;gap:8px;align-items:center}
-.match .hud .panel{flex-direction:row;align-items:baseline;gap:10px;padding:8px 16px}
-.match .hud .big{font-size:1.4rem}
-.match .hud-rules{padding:.5em .9em;font-size:.82rem}
+.match .hud-panel{display:flex;flex-direction:column;gap:3px;padding:8px 22px;min-width:190px}
+.match .hud-line{display:flex;align-items:baseline;gap:8px;white-space:nowrap}
+.match .hud-line .label{font-size:.66rem;letter-spacing:.18em;opacity:.65;min-width:3.6em;text-align:right}
+.match .hud-line .big{font-size:1.25rem}
+.match .hud-line .sub{font-size:.62rem;opacity:.65;margin-left:2px}
+.match .hud-rules{padding:.55em 1.05em;font-size:.9rem}
+/* 骰盘区：占满中间整行（通栏），不被挤成半幅 */
 .match .table-zone{grid-area:tabl;margin:0}
-.match .bottom-row{grid-area:botm;display:flex;gap:10px;align-items:stretch}
-.match .bottom-row .badge-bar{flex:0 0 300px;padding:0}
-.match .bottom-row .action-bar{flex:1;padding:0}
-.match .bottom-row .badge-slot{height:100%;align-items:center}
+/* 右下角圆形按钮组 */
+.match .bottom-row{grid-area:botm;display:flex;gap:10px;align-items:center}
+.match .bottom-row .badge-bar{flex:0 0 auto;padding:0}
+.match .fab-cluster{flex:1;display:flex;gap:10px;align-items:center;justify-content:flex-end}
+.fab{
+  width:72px;height:72px;border-radius:50%;cursor:pointer;flex:none;
+  border:1px solid var(--gold);color:var(--gold-bright);
+  background:linear-gradient(160deg,var(--wood-light),var(--wood));
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  box-shadow:0 4px 14px rgba(0,0,0,.5);transition:transform .25s var(--ease),box-shadow .25s;
+}
+.fab:hover{box-shadow:0 6px 20px rgba(0,0,0,.6),0 0 14px rgba(201,162,39,.2)}
+.fab:active{transform:scale(.92)}
+.fab.primary{width:84px;height:84px;background:linear-gradient(160deg,var(--gold-bright),var(--gold));color:#241a08;box-shadow:0 4px 18px rgba(201,162,39,.4)}
+.fab .lucide{width:24px;height:24px}
+.fab.primary .lucide{width:28px;height:28px}
+.fab small{font-size:10px;letter-spacing:.05em;line-height:1}
+.fab.primary small{font-size:11px}
+.fab[disabled]{opacity:.35;pointer-events:none}
+/* 左下角徽章按钮（与行动按钮同族的圆形按钮） */
+.badge-fab:disabled{cursor:default;opacity:.5}
+.badge-fab .charge-dots{margin-top:1px}
+.badge-fab .charge-dots i{width:5px;height:5px}
+.badge-fab.primary{animation:badgePulse 1.6s ease-in-out infinite}
+@keyframes badgePulse{50%{box-shadow:0 4px 18px rgba(201,162,39,.4),0 0 6px rgba(232,197,88,.55)}}
 /* 窄屏/手机竖持降级：回退纵向堆叠 */
 @media (max-width:680px){
   #app{position:relative;inset:auto;width:100vw;height:100dvh;border:none;box-shadow:none}

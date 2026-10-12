@@ -38,10 +38,6 @@ const UI = (() => {
       return `<i style="height:${Math.max(8, p * 0.28)}px"><em>${i + 1}</em></i>`;
     }).join('') + `</div>`;
   }
-  function probText(type) {
-    const w = DATA.DICE[type].weights, t = w.reduce((a, b) => a + b, 0);
-    return w.map((x, i) => `${i + 1}点 ${Math.round(x / t * 100)}%`).join(' · ');
-  }
   function currencyBar() {
     const s = Save.data;
     return `<div class="currency-bar">
@@ -119,19 +115,19 @@ const UI = (() => {
       <div class="panel">
         <h3><i data-lucide="scroll-text"></i>计分表</h3>
         <table class="score-table">${rows}</table>
-        <p style="font-size:.72rem;margin-top:8px;opacity:.75">简化计分：只有多同（三同及以上）、顺子和单龬 1 / 5 计分，两颗同数不成组合。</p>
+        <p style="font-size:.72rem;margin-top:8px;opacity:.75">简化计分：只有多同（三同及以上）、顺子和单颗 1 / 5 计分，两颗同数不成组合。</p>
       </div>
       <div class="panel">
         <h3><i data-lucide="repeat"></i>回合流程</h3>
         <div class="flow-steps">
           <div class="fs"><div class="fi"><i data-lucide="dices"></i></div>掷骰</div><span class="arr">→</span>
           <div class="fs"><div class="fi"><i data-lucide="hand"></i></div>扣下组合</div><span class="arr">→</span>
-          <div class="fs"><div class="fi"><i data-lucide="rotate-cw"></i></div>继续掷 / 存分</div><span class="arr">→</span>
+          <div class="fs"><div class="fi"><i data-lucide="rotate-cw"></i></div>继续掷 / 结束回合</div><span class="arr">→</span>
           <div class="fs"><div class="fi"><i data-lucide="alert-triangle"></i></div>无组合则爆掉</div>
         </div>
         <p style="font-size:.78rem;margin-top:12px;line-height:1.7;opacity:.85">
-          每次掷骰后必须至少扣下一颗计分骰子；六颗全部扣下触发 Hot Dice，保留暂存分并重掷六颗。
-          无组合可扣即爆掉，本回合暂存分清零。先到目标分或定轮比高分者胜。
+          每次掷骰后必须至少扣下一颗计分骰子；之后可继续投掷剩余骰子，或点击「结束回合」把暂存分存入总分。
+          六颗全部扣下触发 Hot Dice：保留暂存分并重掷六颗。无组合可扣即爆掉，本回合暂存分清零。先到目标分或定轮比高分者胜。
         </p>
       </div>
       <div class="panel">
@@ -164,20 +160,20 @@ const UI = (() => {
       const summaryText = Object.entries(summary).map(([k, n]) => `${DATA.DICE[k].name}×${n}`).join('、');
       return `
       <div class="prep-side ${editable ? '' : 'readonly'}">
-        <h3><i data-lucide="${pl.isAI ? 'bot' : 'user'}"></i>${title}${pl.pers ? ` <span class="chip" style="margin-left:auto">${DATA.PERSONALITIES[pl.pers].name}</span>` : ''}</h3>
+        <h3><i data-lucide="${pl.isAI ? 'bot' : 'user'}"></i>${title}</h3>
         <div class="dice-slots">
           ${pl.dice.map((d, i) => `<div class="dslot filled" ${editable ? `onclick="UI.prepPickDice(${side},${i})"` : ''}>${dieHTML(6, '', d)}</div>`).join('')}
         </div>
         <p style="font-size:.68rem;color:var(--ink-dim);margin-top:6px">${summaryText}</p>
         <div class="prep-badge">
-          <div class="badge-slot" ${editable ? `onclick="UI.prepPickBadge(${side})"` : ''}>
-            <div class="bi"><i data-lucide="${b ? b.icon : 'shield-off'}"></i></div>
-            <div style="flex:1">
-              <div class="bname">${b ? b.name : '不携带徽章'}</div>
-              <div class="bdesc">${b ? b.desc : (editable ? '点击选择徽章' : '')}</div>
-            </div>
+          <button class="badge-slot" ${editable ? `onclick="UI.prepPickBadge(${side})"` : 'disabled'}>
+            <span class="bi"><i data-lucide="${b ? b.icon : 'shield-off'}"></i></span>
+            <span class="binfo">
+              <span class="bname">${b ? b.name : '不携带徽章'}</span>
+              <span class="bdesc">${b ? b.desc : (editable ? '点击选择徽章' : '')}</span>
+            </span>
             ${b ? chargeDots(b.charges, b.charges) : ''}
-          </div>
+          </button>
         </div>
       </div>`;
     };
@@ -200,7 +196,7 @@ const UI = (() => {
     const d = DATA.DICE[type];
     return `<div class="picker-item ${disabled ? 'disabled' : ''} ${cur ? 'cur' : ''}" ${disabled ? '' : `onclick="${onclick}"`}>
       ${dieHTML(6, 'sm', type)}
-      <div class="nm"><b>${d.name}</b><p>${probText(type)}</p></div>
+      <div class="nm"><b>${d.name}</b><p>${d.desc}</p></div>
       ${probHTML(type)}
     </div>`;
   }
@@ -232,7 +228,7 @@ const UI = (() => {
         <div class="rk-info">
           <span>入场 ${reg.fee} · 胜 +${reg.winCoins} 软币</span>
           <span>胜 +${reg.winPts} 分 / 负 -${reg.losePts} 分 · 目标 ${reg.target}</span>
-          <span>霸主：${reg.bossName}（${DATA.PERSONALITIES[reg.bossPers].name}）</span>
+          <span>霸主：${reg.bossName}</span>
         </div>
         ${!unlocked
           ? `<button class="btn btn-ghost" disabled><i data-lucide="lock"></i>先夺得「${DATA.REGIONS[i - 1].medal}」</button>`
@@ -279,7 +275,7 @@ const UI = (() => {
           <button class="btn btn-gold" onclick="Main.buyBadge('${id}')">购买</button>
         </div>`;
       }
-    } else {
+    } else if (shopTab === 'skin') {
       const kindMap = { table: '台面', board: '计分板' };
       for (const [kind, list] of Object.entries(DATA.SKINS)) {
         for (const sk of list) {
@@ -298,16 +294,35 @@ const UI = (() => {
           </div>`;
         }
       }
+    } else if (shopTab === 'gem') {
+      DATA.GEM_PACKS.forEach(p => {
+        cards += `<div class="goods-card">
+          <div class="iap-icon gem"><i data-lucide="gem"></i></div>
+          <div class="gname">${p.gems.toLocaleString()} 点券</div>
+          <div class="gdesc">${p.hot ? '超值热销' : ' '}</div>
+          <div class="price gem"><i data-lucide="gem"></i>${p.gems.toLocaleString()}</div>
+          <button class="btn btn-gold" onclick="Main.buyGems('${p.id}')">¥ ${p.price}</button>
+        </div>`;
+      });
+    } else if (shopTab === 'coin') {
+      DATA.COIN_PACKS.forEach(p => {
+        cards += `<div class="goods-card">
+          <div class="iap-icon coin"><i data-lucide="coins"></i></div>
+          <div class="gname">${p.coins.toLocaleString()} 软币</div>
+          <div class="gdesc">${p.hot ? '超值热销' : ' '}</div>
+          <div class="price"><i data-lucide="coins"></i>${p.coins.toLocaleString()}</div>
+          <button class="btn btn-gold" onclick="Main.buyCoins('${p.id}')">¥ ${p.price}</button>
+        </div>`;
+      });
     }
     $app().innerHTML = `
     ${pageHead('商店')}
-    <div style="display:flex;justify-content:flex-end;padding:0 16px">
-      <button class="btn btn-ghost" style="font-size:.78rem;padding:.45em 1em" onclick="Main.recharge()"><i data-lucide="plus"></i>充值点券（演示）</button>
-    </div>
     <div class="shop-tabs">
       <span class="chip ${shopTab === 'dice' ? 'sel' : ''}" onclick="UI.shopTab('dice')">骰子</span>
       <span class="chip ${shopTab === 'badge' ? 'sel' : ''}" onclick="UI.shopTab('badge')">徽章</span>
       <span class="chip ${shopTab === 'skin' ? 'sel' : ''}" onclick="UI.shopTab('skin')">外观</span>
+      <span class="chip ${shopTab === 'gem' ? 'sel' : ''}" onclick="UI.shopTab('gem')">钻石</span>
+      <span class="chip ${shopTab === 'coin' ? 'sel' : ''}" onclick="UI.shopTab('coin')">金币</span>
     </div>
     <div class="shop-grid">${cards}</div>`;
   };
@@ -390,7 +405,7 @@ const UI = (() => {
     M.turn = {
       pending: 0,
       dice: p.dice.map(t => ({ type: t, value: 6, kept: false, extra: false })),
-      phase: 'roll', selected: new Set(), might: false, doppel: false,
+      phase: 'roll', selected: new Set(), might: false, doppel: false, hotDice: false,
       fortuneMode: false, transmuteMode: false, fortunePicks: new Set(),
     };
   }
@@ -407,7 +422,7 @@ const UI = (() => {
         <div class="avatar"><i data-lucide="${pl.isAI ? 'bot' : 'user'}"></i></div>
         <div class="info">
           <div class="name">${esc(pl.name)} ${pl.badge ? `<span class="chip" style="font-size:.62rem"><i data-lucide="${DATA.BADGES[pl.badge.id].icon}"></i>${badgeLeft(pl)}</span>` : ''}</div>
-          <div class="pers">${pl.isAI ? DATA.PERSONALITIES[pl.pers].name : (i === 0 ? '（你）' : '（玩家 2）')}</div>
+          <div class="pers">${pl.isAI ? 'AI 对手' : (i === 0 ? '（你）' : '（玩家 2）')}</div>
         </div>
         <div class="score">${pl.total}</div>
       </div>`;
@@ -430,15 +445,18 @@ const UI = (() => {
       else if (t.selected.size === 0) selInfo = `<span class="none">点击骰子选择要扣下的计分组合（至少一颗）</span>`;
       else if (selR.valid) selInfo = `<span class="ok">已选 ${t.selected.size} 颗 = ${selR.score} 分${t.doppel ? '（分身翻倍 → ' + selR.score * 2 + '）' : ''}　${selR.steps.map(s2 => s2.name).join(' + ')}</span>`;
       else selInfo = `<span class="bad">该选择中每颗骰子都必须参与计分</span>`;
-    } else selInfo = `<span class="none">${t.phase === 'roll' ? '点击「掷骰」开始本回合' : ''}</span>`;
+    } else if (t.phase === 'decide') selInfo = `<span class="none">暂存 ${t.pending} 分${t.hotDice ? ' · Hot Dice！可再掷六颗或结束回合' : ' · 可继续投掷，或点「结束回合」存入总分'}</span>`;
+    else selInfo = `<span class="none">点击「掷骰」开始本回合</span>`;
 
     $app().innerHTML = `
     <div class="match">
       ${bar(M.players[0], 0)}
       ${bar(M.players[1], 1)}
       <div class="hud">
-        <div class="panel"><span class="label">${cfg.mode === 'race' ? '目标分' : '轮次'}</span><span class="big">${cfg.mode === 'race' ? cfg.target : `${M.round}/${cfg.rounds}`}</span><span class="sub">${cfg.mode === 'race' ? '冲分赛' : '定轮赛'}</span></div>
-        <div class="panel"><span class="label">当前暂存分</span><span class="big pending ${t.pending ? 'has' : ''}">${t.pending}</span><span class="sub">已扣 ${kept.length} 颗 · 未存入</span></div>
+        <div class="panel hud-panel">
+          <div class="hud-line"><span class="label">目标分</span><span class="big">${cfg.mode === 'race' ? cfg.target : `${M.round}/${cfg.rounds} 轮`}</span></div>
+          <div class="hud-line"><span class="label">当前暂存</span><span class="big pending ${t.pending ? 'has' : ''}">${t.pending}</span><span class="sub">已扣 ${kept.length} 颗</span></div>
+        </div>
         <span class="chip"><i data-lucide="user-check"></i>行动方 · ${esc(p.name)}</span>
         <button class="btn btn-ghost hud-rules" onclick="UI.scoreModal()"><i data-lucide="book-open"></i>规则</button>
       </div>
@@ -455,15 +473,15 @@ const UI = (() => {
         <div class="sel-info">${selInfo}</div>
       </div>
       <div class="bottom-row">
-        <div class="badge-bar">
-          <div class="badge-slot ${badgeUsable ? 'usable' : ''}" ${badgeUsable ? `onclick="UI.badgeUse()"` : ''}>
-            <div class="bi"><i data-lucide="${bdef ? bdef.icon : 'shield-off'}"></i></div>
-            <div style="flex:1"><div class="bname">${bdef ? bdef.name : '无徽章'}</div><div class="bdesc">${bdef ? bdef.desc : ''}</div></div>
-            ${bdef ? chargeDots(bl, bdef.charges) : ''}
-          </div>
-        </div>
-        <div class="action-bar">
-          ${!isAI(p) ? actionButtons(selR) : `<button class="btn btn-ghost btn-big" disabled>对手行动中…</button>`}
+        ${p.badge ? `<div class="badge-bar">
+          <button class="fab badge-fab ${badgeUsable ? 'primary' : ''}" title="${esc(bdef.desc)}" ${badgeUsable ? `onclick="UI.badgeUse()"` : 'disabled'}>
+            <i data-lucide="${bdef.icon}"></i>
+            <small>${bdef.name}</small>
+            ${chargeDots(bl, bdef.charges)}
+          </button>
+        </div>` : ''}
+        <div class="fab-cluster">
+          ${!isAI(p) ? actionButtons(selR) : `<span class="chip"><i data-lucide="hourglass"></i>对手行动中</span>`}
         </div>
       </div>
     </div>`;
@@ -471,25 +489,33 @@ const UI = (() => {
   }
   function actionButtons(selR) {
     const t = M.turn;
-    if (t.phase === 'roll') return `<button class="btn btn-gold btn-big" onclick="UI.doRoll()"><i data-lucide="dices"></i>掷骰${t.might ? '（神力 +1）' : ''}</button>`;
+    if (t.phase === 'roll') return fab('dices', '掷骰', 'UI.doRoll()', true);
     if (t.phase === 'select') {
       if (t.fortuneMode) return `
-        <button class="btn btn-ghost" onclick="UI.fortuneCancel()">取消</button>
-        <button class="btn btn-gold btn-big" ${t.fortunePicks.size ? '' : 'disabled'} onclick="UI.fortuneApply()">重投所选</button>`;
-      if (t.transmuteMode) return `<button class="btn btn-ghost btn-big" onclick="UI.transmuteCancel()">取消选择</button>`;
+        ${fab('x', '取消', 'UI.fortuneCancel()')}
+        ${fab('refresh-cw', '重投', 'UI.fortuneApply()', true, t.fortunePicks.size === 0)}`;
+      if (t.transmuteMode) return fab('x', '取消', 'UI.transmuteCancel()');
+      const canKeep = selR.valid && t.selected.size;
       return `
-        <button class="btn btn-ghost small" onclick="UI.selectAll()">全部选取</button>
-        <button class="btn btn-gold btn-big" ${selR.valid && t.selected.size ? '' : 'disabled'} onclick="UI.keepSelection()">扣下${selR.valid && t.selected.size ? ` +${selR.score * (t.doppel ? 2 : 1)}` : ''}</button>`;
+        ${fab('list-check', '全选', 'UI.selectAll()')}
+        ${fab('check', canKeep ? `扣 ${selR.score * (t.doppel ? 2 : 1)}` : '扣下', 'UI.keepSelection()', true, !canKeep)}`;
     }
     return `
-      <button class="btn btn-ghost" onclick="UI.doRoll()"><i data-lucide="dices"></i>继续掷</button>
-      <button class="btn btn-gold btn-big" onclick="UI.bank()"><i data-lucide="coins"></i>存分 ${t.pending}</button>`;
+      ${fab('rotate-cw', '继续投掷', 'UI.doRoll()')}
+      ${fab('flag', '结束回合', 'UI.bank()', true)}`;
+  }
+  /* 右下角圆形按钮 */
+  function fab(icon, label, onclick, primary, disabled) {
+    return `<button class="fab ${primary ? 'primary' : ''}" ${disabled ? 'disabled' : ''} onclick="${onclick}">
+      <i data-lucide="${icon}"></i><small>${label}</small>
+    </button>`;
   }
 
   /* ---- 掷骰 ---- */
   function doRoll() {
     const t = M.turn, p = curPlayer();
     if (t.phase !== 'roll' && t.phase !== 'decide') return;
+    t.hotDice = false;
     if (t.might) {
       t.dice.push({ type: p.dice[0], value: 6, kept: false, extra: true });
       t.might = false;
@@ -599,6 +625,7 @@ const UI = (() => {
       banner('HOT DICE', 'hot');
       Main.stat('hot', 1);
       t.dice = p.dice.map(ty => ({ type: ty, value: 6, kept: false, extra: false }));
+      t.hotDice = true; // Hot Dice：可选择再掷六颗或结束回合
     }
     renderMatch();
   }
@@ -623,6 +650,15 @@ const UI = (() => {
     }
     M.cur = (M.cur + 1) % M.players.length;
     newTurn();
+    // 本地对战：双方真人同屏，交权前用递机过场遮挡棋盘，避免看到对手骰面
+    if (cfg.local && !isAI(curPlayer())) {
+      const next = curPlayer();
+      handoff(next.name, () => {
+        banner(`轮到 ${next.name}`, 'hot');
+        renderMatch();
+      });
+      return;
+    }
     banner(`轮到 ${curPlayer().name}`, 'hot');
     renderMatch();
     if (isAI(curPlayer())) setTimeout(aiPlay, 900);
@@ -752,7 +788,7 @@ const UI = (() => {
       <h3 style="color:var(--gold-bright);letter-spacing:.15em;margin-bottom:10px"><i data-lucide="book-open"></i> 计分规则</h3>
       <table class="score-table">${rows}</table>
       <p style="font-size:.72rem;margin-top:12px;line-height:1.7;opacity:.8">
-        每次掷骰后必须至少扣下一颗计分骰子；六颗全部扣下触发 Hot Dice（保留暂存分、重掷六颗）；无组合可扣即爆掉清零。简化计分：只有多同（三同及以上）、顺子和单龬 1 / 5 计分。
+        每次掷骰后必须至少扣下一颗计分骰子；六颗全部扣下触发 Hot Dice（保留暂存分、重掷六颗）；无组合可扣即爆掉清零。简化计分：只有多同（三同及以上）、顺子和单颗 1 / 5 计分。
       </p>
       <button class="btn btn-gold btn-big" style="margin-top:10px" onclick="UI.closeModal()">返回对局</button>
     </div>`, true);
@@ -794,7 +830,7 @@ const UI = (() => {
 
   /* ---------- 暴露给全局 ---------- */
   return {
-    go, toast, modal, closeModal, banner, dieHTML, probHTML, probText, chargeDots, startMatch, startPrep, handoff,
+    go, toast, modal, closeModal, banner, dieHTML, probHTML, chargeDots, startMatch, startPrep, handoff,
     doRoll, dieTap, selectAll, keepSelection, bank, badgeUse, onBust, doBust, useResurrection,
     fortuneApply, fortuneCancel() { M.turn.fortuneMode = false; M.turn.fortunePicks.clear(); renderMatch(); },
     transmuteCancel() { M.turn.transmuteMode = false; renderMatch(); },

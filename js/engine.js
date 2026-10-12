@@ -33,7 +33,7 @@ const Engine = (() => {
     if ([2, 3, 4, 5, 6].every(v => counts[v] >= 1)) list.push({ use: [0, 0, 1, 1, 1, 1, 1], score: 750, name: '顺子 2-6' });
     const pairs = [];
     for (let v = 1; v <= 6; v++) if (counts[v] >= 2) pairs.push(v);
-    /* 简化计分表：三对、葫芦已移除，只保留多同/顺子/单龬1/5 */
+    /* 简化计分表：三对、葫芦已移除，只保留多同/顺子/单颗1/5 */
     return list;
   }
 

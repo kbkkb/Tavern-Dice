@@ -118,8 +118,23 @@ const DATA = (() => {
   const ECON = {
     winCoins: 100, loseCoins: 30, levelReplayCoins: 40,
     badgeDropRate: 0.25,
-    rechargeGems: 500,
   };
+
+  /* ---- 内购档位：钻石 / 金币 ---- */
+  const GEM_PACKS = [
+    { id: 'gem_60',   gems: 60,   price: 6 },
+    { id: 'gem_300',  gems: 300,  price: 30 },
+    { id: 'gem_680',  gems: 680,  price: 68,  hot: true },
+    { id: 'gem_1280', gems: 1280, price: 128 },
+    { id: 'gem_3280', gems: 3280, price: 328 },
+    { id: 'gem_6480', gems: 6480, price: 648 },
+  ];
+  const COIN_PACKS = [
+    { id: 'coin_6k',   coins: 6000,   price: 6 },
+    { id: 'coin_33k',  coins: 33000,  price: 30 },
+    { id: 'coin_68k',  coins: 68000,  price: 68,  hot: true },
+    { id: 'coin_128k', coins: 128000, price: 128 },
+  ];
 
   /* ---- 初始存档 ---- */
   function defaultSave() {
@@ -138,5 +153,5 @@ const DATA = (() => {
     };
   }
 
-  return { SCORE_TABLE, DICE, BADGES, PERSONALITIES, SKINS, ALL_SKINS, skinById, REGIONS, ACHIEVEMENTS, ECON, defaultSave };
+  return { SCORE_TABLE, DICE, BADGES, PERSONALITIES, SKINS, ALL_SKINS, skinById, REGIONS, ACHIEVEMENTS, ECON, GEM_PACKS, COIN_PACKS, defaultSave };
 })();
